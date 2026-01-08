@@ -21,7 +21,7 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |VLAN  10 (ADMIN)|192.168.10.0/24|192.168.10.254| Gestion des  équipements | Lyon |
 |VLAN  20 (DATA)|192.168.20.0/24|192.168.20.254| Postes  employés et serveurs | Lyon|
 |VLAN  99 (NATIF)||| Pour les trames non taguées |Lyon  & Marseille|
-|Interco WAN |10.0.0.0/30|| Lien  WAN  entre pare-feux |Lyon &  Marseille|
+|Interco WAN |DHCP GNS3|| Lien  WAN  entre pare-feux |Lyon &  Marseille|
 |LAN Agence |192.168.30.0/24|192.168.30.254| Utilisateurs distants | Marseille |
 
 ### Matrice de flux de  sécurité
