@@ -11,6 +11,7 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
   <li>Routage: VyOS (Segmentation Lan &  inter-VLAN)</li>
   <li>VPN: IPsec IKEV2 (tunnel Site-à-Site)</li>
   <li>Emulation : GNS3</li>
+  <li>Virtualisation : VMWARE Workstation</li>
 </ol>
 
 ## Topologie
