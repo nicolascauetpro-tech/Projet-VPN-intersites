@@ -8,7 +8,8 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 ### Technologies utilisées
 <ol>
   <li>Pare-feu: OPNSense site de Lyon et pfSense site  de Marseille</li>
-  <li>Routage: VyOS (Segmentation Lan &  inter-VLAN)</li>
+  <li>Switch: OpenVswitch site de Lyon et pfSense site  de Marseille</li>
+  <li>Routage: FRR sous alpine linux (Segmentation Lan &  inter-VLAN)</li>
   <li>VPN: IPsec IKEV2 (tunnel Site-à-Site)</li>
   <li>Emulation : GNS3</li>
   <li>Virtualisation : VMWARE Workstation</li>
