@@ -23,7 +23,8 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |-------------|:----------------------:|:----------------:|:----:|-----:|
 |VLAN  20 (DATA)|10.1.0.0/21|10.1.7.254| Postes  employés et serveurs(2046 IPs) | Lyon|
 |VLAN  10 (ADMIN)|10.1.8.0/26|10.1.8.62| Postes administrateurs (62 IPs) | Lyon|
-|VLAN  99 (NATIF)||| Pour les trames non taguées |Lyon|
+|VLAN  99 (NATIF)||| Pour les trames non taguées sécurité lien trunks |Lyon|
+|VLAN  999 (POUBELLE)||| Pour les ports non utilisés |Lyon|
 |Interco alpine/OPNSense |10.1.8.64/30| - | Lien d'interconnexion entre L3 et pare-feu| Lyon|
 |Interco WAN |DHCP GNS3|| Lien  WAN  entre OPNSense et Cloud GNS3 |Lyon|
 
@@ -41,9 +42,11 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 | Source  |      Destination      |  Protocoles | Port | Utilité | Action |
 |-------------|:-----------------:|:-----------:|:----:|:-------:|-------:|
-|VLAN  10 (ADMIN)|Tout  le  réseau| Tous | Tous | Administration complète | Allow |
-|VLAN  20 (DATA)|Lan  Agence| TCP | 445 | Partage de  fichiers (SMB) | Allow |
-|LAN Agence |VLAN 10| Tous | Tous | Accès interdit | Deny |
+|VLAN  10 (ADMIN)|Équipements Réseaux| SSH,HHTPS,HTTP | 22,443,80 | Administration complète(GUI,SLI) | Allow |
+|VLAN  10 (ADMIN)|Partout| ICMP | ANY | Diagnostic (ping,tracroute) | Allow |
+|VLAN  20 (DATA)|Lan  Marseille| TCP | 445 | Partage de  fichiers (SMB) | Allow |
+|LAN Marseille|VLAN 20 (DATA)| TCP | 445 | Partage de  fichiers (SMB) | Allow |
+|LAN Marseille |VLAN 10| Tous | Tous | Accès interdit | Deny |
 |VLAN  99 (NATIF)|Tout  le  réseau| Tous | Tous | Isolation totale | Deny  &  Log |
 
 
