@@ -14,7 +14,7 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
   <li>VPN: IPsec IKEV2 (tunnel Site-à-Site) sous OPNSense</li>
   <li>Emulation : GNS3</li>
   <li>Virtualisation : VMWARE Workstation</li>
-  <h2>Site B : LYON</h2>
+  <h2>Site B : MARSEILLE</h2>
   <li>Pare-feu: pfSense/nftables sous Alpine Linux</li>
   <li>Switch: OpenVswitch sous Alpine linux</li>
   <li>Routage: pfSense (Segmentation Lan &  inter-VLAN)</li>
@@ -46,31 +46,57 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |VLAN  999 (POUBELLE)||| Pour les ports non utilisés |Marseille|
 
 
-### Matrice de flux de  sécurité
-## 1. Matrice de Lyon : nftables (Alpine L3)
+# Infrastructure Réseau Multi-sites Sécurisée
 
-| Interface (SVI) | Sens | Source | Destination | Protocole | Port | Action | Utilité |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **VLAN 10** | IN | `10.1.8.0/26` | `10.1.0.0/21` | Tous | Tous | **ALLOW** | Admin vers serveurs locaux |
-| **VLAN 20** | IN | `10.1.0.0/21` | `10.1.8.0/26` | Tous | Tous | **DENY** | Isolation Admin (Sécurité interne) |
-| **VLAN 10/20** | IN | `10.1.0.0/16` | `0.0.0.0/0` | Tous | Tous | **FORWARD** | Sortie vers OPNSense (Route par défaut) |
-| **VLAN 999** | IN | Any | Any | Tous | Tous | **REJECT** | VLAN Poubelle (Ports non utilisés) |
+## 1. Technologies et Rôles par Site
 
-## 2. Matrice de Lyon : Pare-feu (OPNSense)
+### Site A : LYON (Siège)
+* **Filtrage L2/L3 (Inter-VLAN)** : Alpine Linux (Open vSwitch + nftables).
+* **Routage Dynamique** : FRR sur Alpine Linux.
+* **Pare-feu & VPN** : OPNSense (IPsec IKEv2 + Filtrage Périmétrique).
 
-| Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **LAN** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Autorise l'Admin Lyon à entrer dans le VPN vers Marseille |
-| **LAN** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | Autorise le SMB Lyon à entrer dans le VPN vers Marseille |
-| **LAN** | IN | `10.1.0.0/16` | Any (WAN) | TCP | 80, 443 | **ALLOW** | Navigation Web directe (Sortie Internet locale) |
-| **IPsec** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Sortie du VPN : Marseille accède aux serveurs Data Lyon |
-| **IPsec** | IN | `10.2.0.0/22` | `10.1.8.0/26` | Tous | Tous | **DENY** | Sortie du VPN : Marseille interdit vers zone Admin Lyon |
+### Site B : MARSEILLE (Agence)
+* **Filtrage L2 (Proximité)** : Alpine Linux (Open vSwitch + nftables).
+* **Pare-feu, Routeur & VPN** : pfSense (IPsec IKEv2 + Routage LAN).
 
-## 3. Matrice de Marseille : Pare-feu (pfSense)
+---
+
+## 2. Matrices de Flux (Règles de filtrage)
+
+### A. Lyon - Switch L3 / Routeur (Alpine nftables)
+*C'est ici que l'on gère l'isolation entre les VLANs locaux avant qu'ils ne sortent vers le pare-feu.*
 
 | Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **LAN** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Accès SMB Agence -> Lyon |
-| **LAN** | IN | `10.2.0.0/22` | Any (WAN) | Tous | Tous | **ALLOW** | Navigation Web Marseille |
-| **IPsec (VPN)** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Autoriser Admin distant (Lyon) |
-| **IPsec (VPN)** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | Flux SMB Lyon -> Marseille |
+| **VLAN 10** | IN | `10.1.8.0/26` | `10.1.0.0/21` | Tous | Tous | **ALLOW** | Admin Lyon -> Serveurs locaux |
+| **VLAN 20** | IN | `10.1.0.0/21` | `10.1.8.0/26` | Tous | Tous | **DENY** | Blocage accès Data -> Admin |
+| **Toutes** | IN | `10.1.0.0/16` | `0.0.0.0/0` | Tous | Tous | **ALLOW** | Autorise la sortie vers OPNSense |
+| **VLAN 999** | IN | Any | Any | Tous | Tous | **REJECT** | Sécurité ports non utilisés |
+
+### B. Lyon - Pare-feu (OPNSense)
+*Gestion du tunnel VPN (sortant) et sécurité des flux arrivant de Marseille.*
+
+| Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **LAN** | IN | `10.1.0.0/16` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Autorise l'entrée dans le VPN |
+| **LAN** | IN | `10.1.0.0/16` | `Any` | TCP | 80, 443 | **ALLOW** | Navigation Web (Breakout local) |
+| **IPsec** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Marseille -> SMB Lyon |
+| **IPsec** | IN | `10.2.0.0/22` | `10.1.8.0/26` | Tous | Tous | **DENY** | Marseille -> Interdit vers Admin |
+
+### C. Marseille - Switch L2 (Alpine nftables)
+*Filtrage de proximité pour isoler les machines de l'agence entre elles.*
+
+| Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Bridge** | IN | `10.2.0.0/22` | `10.2.0.0/22` | Tous | Tous | **DENY** | Isolation Intra-VLAN (Poste à poste) |
+| **eth1-5** | IN | `10.2.0.0/22` | `Any` | ARP/IP | Tous | **ALLOW** | Autorise la montée vers pfSense |
+
+### D. Marseille - Pare-feu (pfSense)
+*Gestion du tunnel VPN et accès Internet de l'agence.*
+
+| Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **LAN** | IN | `10.2.0.0/22` | `10.1.0.0/16` | Tous | Tous | **ALLOW** | Autorise l'entrée dans le VPN |
+| **LAN** | IN | `10.2.0.0/22` | `Any` | Tous | Tous | **ALLOW** | Navigation Web Marseille |
+| **IPsec** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Admin Lyon -> Gestion Marseille |
+| **IPsec** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | Lyon -> SMB Marseille |
