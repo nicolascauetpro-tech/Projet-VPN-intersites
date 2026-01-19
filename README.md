@@ -17,14 +17,25 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 ### Plan d'adressage IP
 
-### Site  A : LYON  (10.1.0.0/16)
+### Site  A : Lyon  (10.1.0.0/16)
 
-| Zone/VLAN   |      Réseau(CIDR)      |  Paserelle(VyOS) | Rôle | Site |
+| Zone/VLAN   |      Réseau(CIDR)      |  Paserelle | Rôle | Site |
 |-------------|:----------------------:|:----------------:|:----:|-----:|
 |VLAN  20 (DATA)|10.1.0.0/21|10.1.7.254| Postes  employés et serveurs(2046 IPs) | Lyon|
+|VLAN  10 (ADMIN)|10.1.8.0/26|10.1.8.62| Postes administrateurs (62 IPs) | Lyon|
 |VLAN  99 (NATIF)||| Pour les trames non taguées |Lyon|
-|Interco alpine/OPNSense |10.1.255.0/30
-|Interco WAN |DHCP GNS3|| Lien  WAN  entre pare-feux |Lyon|
+|Interco alpine/OPNSense |10.1.8.64/30| - | Lien d'interconnexion entre L3 et pare-feu| Lyon|
+|Interco WAN |DHCP GNS3|| Lien  WAN  entre OPNSense et Cloud GNS3 |Lyon|
+
+### Site  B : Marseille  (10.2.0.0/16)
+| Zone/VLAN   |      Réseau(CIDR)      |  Paserelle | Rôle | Site |
+|-------------|:----------------------:|:----------------:|:----:|-----:|
+|Lan Marseille|10.2.0.0/22|10.2.3.254| Postes employés |Marseille|
+|Interco WAN|DHCP GNS3|-| Lien d'interconnexion entre pfsense et Cloud GNS3 |Marseille|
+|VLAN  99 (NATIF)||| Pour les trames non taguées |Marseille|
+
+
+
 
 ### Matrice de flux de  sécurité
 
