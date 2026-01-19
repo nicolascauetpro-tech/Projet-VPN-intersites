@@ -47,186 +47,30 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 
 ### Matrice de flux de  sécurité
-<h2>1. Matrice de Lyon : nftables (Alpine L3)</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Interface (SVI)</th>
-            <th>Sens</th>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>Protocole</th>
-            <th>Port</th>
-            <th>Action</th>
-            <th>Utilité</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><b>VLAN 10</b></td>
-            <td>IN</td>
-            <td><code>10.1.8.0/26</code></td>
-            <td><code>10.1.0.0/21</code></td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Admin vers serveurs locaux</td>
-        </tr>
-        <tr>
-            <td><b>VLAN 20</b></td>
-            <td>IN</td>
-            <td><code>10.1.0.0/21</code></td>
-            <td><code>10.1.8.0/26</code></td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #d73a49; font-weight: bold;">DENY</span></td>
-            <td>Isolation Admin (Sécurité interne)</td>
-        </tr>
-        <tr>
-            <td><b>VLAN 10/20</b></td>
-            <td>IN</td>
-            <td><code>10.1.0.0/16</code></td>
-            <td><code>0.0.0.0/0</code></td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #005cc5; font-weight: bold;">FORWARD</span></td>
-            <td>Sortie vers OPNSense (Route par défaut)</td>
-        </tr>
-        <tr>
-            <td><b>VLAN 999</b></td>
-            <td>IN</td>
-            <td>Any</td>
-            <td>Any</td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #d73a49; font-weight: bold;">REJECT</span></td>
-            <td>VLAN Poubelle (Ports non utilisés)</td>
-        </tr>
-    </tbody>
-</table>
+## 1. Matrice de Lyon : nftables (Alpine L3)
 
-<h2>2. Matrice de Lyon : Pare-feu (OPNSense)</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Interface</th>
-            <th>Sens</th>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>Protocole</th>
-            <th>Port</th>
-            <th>Action</th>
-            <th>Utilité</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><b>LAN (Transit)</b></td>
-            <td>IN</td>
-            <td><code>10.1.8.0/26</code></td>
-            <td><code>10.2.0.0/22</code></td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Admin Lyon -> Agence Marseille (VPN)</td>
-        </tr>
-        <tr>
-            <td><b>LAN (Transit)</b></td>
-            <td>IN</td>
-            <td><code>10.1.0.0/21</code></td>
-            <td><code>10.2.0.0/22</code></td>
-            <td>TCP</td>
-            <td>445</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>SMB Lyon -> Agence Marseille</td>
-        </tr>
-        <tr>
-            <td><b>LAN (Transit)</b></td>
-            <td>IN</td>
-            <td><code>10.1.0.0/16</code></td>
-            <td>Any (WAN)</td>
-            <td>HTTP/S</td>
-            <td>80, 443</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Navigation Web Lyon (NAT)</td>
-        </tr>
-        <tr>
-            <td><b>IPsec (VPN)</b></td>
-            <td>IN</td>
-            <td><code>10.2.0.0/22</code></td>
-            <td><code>10.1.0.0/21</code></td>
-            <td>TCP</td>
-            <td>445</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Agence Marseille -> Serveurs Data Lyon</td>
-        </tr>
-        <tr>
-            <td><b>IPsec (VPN)</b></td>
-            <td>IN</td>
-            <td><code>10.2.0.0/22</code></td>
-            <td><code>10.1.8.0/26</code></td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #d73a49; font-weight: bold;">DENY</span></td>
-            <td>Interdire Marseille vers Admin Lyon</td>
-        </tr>
-    </tbody>
-</table>
+| Interface (SVI) | Sens | Source | Destination | Protocole | Port | Action | Utilité |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **VLAN 10** | IN | `10.1.8.0/26` | `10.1.0.0/21` | Tous | Tous | **ALLOW** | Admin vers serveurs locaux |
+| **VLAN 20** | IN | `10.1.0.0/21` | `10.1.8.0/26` | Tous | Tous | **DENY** | Isolation Admin (Sécurité interne) |
+| **VLAN 10/20** | IN | `10.1.0.0/16` | `0.0.0.0/0` | Tous | Tous | **FORWARD** | Sortie vers OPNSense (Route par défaut) |
+| **VLAN 999** | IN | Any | Any | Tous | Tous | **REJECT** | VLAN Poubelle (Ports non utilisés) |
 
-<h2>3. Matrice de Marseille : Pare-feu (pfSense)</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Interface</th>
-            <th>Sens</th>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>Protocole</th>
-            <th>Port</th>
-            <th>Action</th>
-            <th>Utilité</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td><b>LAN</b></td>
-            <td>IN</td>
-            <td><code>10.2.0.0/22</code></td>
-            <td><code>10.1.0.0/21</code></td>
-            <td>TCP</td>
-            <td>445</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Accès SMB Agence -> Lyon</td>
-        </tr>
-        <tr>
-            <td><b>LAN</b></td>
-            <td>IN</td>
-            <td><code>10.2.0.0/22</code></td>
-            <td>Any (WAN)</td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Navigation Web Marseille</td>
-        </tr>
-        <tr>
-            <td><b>IPsec (VPN)</b></td>
-            <td>IN</td>
-            <td><code>10.1.8.0/26</code></td>
-            <td><code>10.2.0.0/22</code></td>
-            <td>Tous</td>
-            <td>Tous</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Autoriser Admin distant (Lyon)</td>
-        </tr>
-        <tr>
-            <td><b>IPsec (VPN)</b></td>
-            <td>IN</td>
-            <td><code>10.1.0.0/21</code></td>
-            <td><code>10.2.0.0/22</code></td>
-            <td>TCP</td>
-            <td>445</td>
-            <td><span style="color: #28a745; font-weight: bold;">ALLOW</span></td>
-            <td>Flux SMB Lyon -> Marseille</td>
-        </tr>
-    </tbody>
-</table>
+## 2. Matrice de Lyon : Pare-feu (OPNSense)
+
+| Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **LAN (Transit)** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Admin Lyon -> Agence Marseille (VPN) |
+| **LAN (Transit)** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | SMB Lyon -> Agence Marseille |
+| **LAN (Transit)** | IN | `10.1.0.0/16` | Any (WAN) | HTTP/S | 80, 443 | **ALLOW** | Navigation Web Lyon (NAT) |
+| **IPsec (VPN)** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Agence Marseille -> Serveurs Data Lyon |
+| **IPsec (VPN)** | IN | `10.2.0.0/22` | `10.1.8.0/26` | Tous | Tous | **DENY** | Interdire Marseille vers Admin Lyon |
+
+## 3. Matrice de Marseille : Pare-feu (pfSense)
+
+| Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **LAN** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Accès SMB Agence -> Lyon |
+| **LAN** | IN | `10.2.0.0/22` | Any (WAN) | Tous | Tous | **ALLOW** | Navigation Web Marseille |
+| **IPsec (VPN)** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Autoriser Admin distant (Lyon) |
+| **IPsec (VPN)** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | Flux SMB Lyon -> Marseille |
