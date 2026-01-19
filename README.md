@@ -47,7 +47,7 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 
 ### Matrice de flux de  sécurité
-<h2>1. Matrice de Lyon : Cœur de Réseau (Alpine L3)</h2>
+<h2>1. Matrice de Lyon : nftables (Alpine L3)</h2>
 <table>
     <thead>
         <tr>
