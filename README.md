@@ -60,11 +60,11 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 | Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **LAN (Transit)** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Admin Lyon -> Agence Marseille (VPN) |
-| **LAN (Transit)** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | SMB Lyon -> Agence Marseille |
-| **LAN (Transit)** | IN | `10.1.0.0/16` | Any (WAN) | HTTP/S | 80, 443 | **ALLOW** | Navigation Web Lyon (NAT) |
-| **IPsec (VPN)** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Agence Marseille -> Serveurs Data Lyon |
-| **IPsec (VPN)** | IN | `10.2.0.0/22` | `10.1.8.0/26` | Tous | Tous | **DENY** | Interdire Marseille vers Admin Lyon |
+| **LAN** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Autorise l'Admin Lyon à entrer dans le VPN vers Marseille |
+| **LAN** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | Autorise le SMB Lyon à entrer dans le VPN vers Marseille |
+| **LAN** | IN | `10.1.0.0/16` | Any (WAN) | TCP | 80, 443 | **ALLOW** | Navigation Web directe (Sortie Internet locale) |
+| **IPsec** | IN | `10.2.0.0/22` | `10.1.0.0/21` | TCP | 445 | **ALLOW** | Sortie du VPN : Marseille accède aux serveurs Data Lyon |
+| **IPsec** | IN | `10.2.0.0/22` | `10.1.8.0/26` | Tous | Tous | **DENY** | Sortie du VPN : Marseille interdit vers zone Admin Lyon |
 
 ## 3. Matrice de Marseille : Pare-feu (pfSense)
 
