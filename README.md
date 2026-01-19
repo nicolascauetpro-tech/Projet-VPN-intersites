@@ -34,6 +34,8 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |Lan Marseille|10.2.0.0/22|10.2.3.254| Postes employés |Marseille|
 |Interco WAN|DHCP GNS3|-| Lien d'interconnexion entre pfsense et Cloud GNS3 |Marseille|
 |VLAN  99 (NATIF)||| Pour les trames non taguées |Marseille|
+|VLAN  999 (POUBELLE)||| Pour les ports non utilisés |Lyon|
+
 
 
 
