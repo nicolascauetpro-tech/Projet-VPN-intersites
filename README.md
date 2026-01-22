@@ -1,6 +1,6 @@
 # Infrastructure  Réseau  Multi-sites Sécurisée(EN COURS)
 
-## Présentation & Objectifs
+## 1. Présentation & Objectifs
 
 Concevoir et déployer une infrastructure réseau  multi-sites  sécurisée reliant un siège social à Lyon et une agence  à Marseille.
 L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de données via un tunnel VPN, tout en isolant les flux critiques grâce à une segmentation rigoureuse.
@@ -23,7 +23,7 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
   <li>Virtualisation : VMWARE Workstation</li>
 </ul>
 
-### Plan d'adressage IP
+## 2. Plan d'adressage IP
 
 ### Site  A : Lyon  (10.1.0.0/16)
 
@@ -45,7 +45,7 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |VLAN  99 (NATIF)||| Pour les trames non taguées |Marseille|
 |VLAN  999 (POUBELLE)||| Pour les ports non utilisés |Marseille|
 
-## 2. Matrices de Flux (Règles de filtrage)
+## 3. Matrices de Flux (Règles de filtrage)
 
 ### A. Lyon - Switch L3 / Routeur (Alpine nftables)
 
