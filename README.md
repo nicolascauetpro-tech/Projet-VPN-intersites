@@ -7,20 +7,23 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 ### Technologies utilisées
 <ul>
-  <h2>Site A : LYON</h2>
-  <li>Pare-feu: OPNSense/nftables sous Alpine Linux</li>
-  <li>Switch: OpenVswitch sous Alpine linux</li>
-  <li>Routage: FRR sous alpine linux (Segmentation Lan &  inter-VLAN)</li>
-  <li>VPN: IPsec IKEV2 (tunnel Site-à-Site) sous OPNSense</li>
-  <li>Emulation : GNS3</li>
-  <li>Virtualisation : VMWARE Workstation</li>
-  <h2>Site B : MARSEILLE</h2>
-  <li>Pare-feu: pfSense/nftables sous Alpine Linux</li>
-  <li>Switch: OpenVswitch sous Alpine linux</li>
-  <li>Routage: pfSense (Segmentation Lan &  inter-VLAN)</li>
-  <li>VPN: IPsec IKEV2 (tunnel Site-à-Site) sous pfSense</li>
-  <li>Emulation : GNS3</li>
-  <li>Virtualisation : VMWARE Workstation</li>
+  <h2>Site A : LYON </h2>
+  <li><h3>Pare-feu de Bordure (Edge) : OPNsense</h3></li>
+    <ul>
+      <li>Rôle : Terminaison VPN IPsec, NAT sortant, premier niveau de filtrage périmétrique. Basé sur FreeBSD.</li>
+    </ul>
+    <li><h3>Cœur de Réseau & Sécurité Interne : Alpine Linux</h3></li>
+    <ul>
+      <li>Rôle : Switch L3 et Routeur interne assurant la segmentation.</li>
+      <li>FRR (Routage dynamique) | Open vSwitch (Commutation) | nftables (Filtrage VLAN Admin/Data)</li>
+    </ul>
+  <h2>Site B : MARSEILLE </h2>
+  <li><h3>Commutation d'Accès : Alpine Linux</h3></li>
+    <ul>
+      <li>Rôle : Simulation de Switch Manageable pour la distribution vers les hôtes finaux.</li>
+      <li>Open vSwitch (OVS) pour la gestion des trunks et du niveau 2.</li>
+      <li>Open vSwitch (Commutation) | nftables (Filtrage VLAN Admin/Data)</li>
+    </ul>
 </ul>
 
 ## 2. Plan d'adressage IP
