@@ -45,20 +45,6 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |VLAN  99 (NATIF)||| Pour les trames non taguées |Marseille|
 |VLAN  999 (POUBELLE)||| Pour les ports non utilisés |Marseille|
 
-
-# Infrastructure Réseau Multi-sites Sécurisée
-
-## 1. Technologies et Rôles par Site
-
-### Site A : LYON (Siège)
-* **Filtrage L2/L3 (Inter-VLAN)** : Alpine Linux (Open vSwitch + nftables).
-* **Routage Dynamique** : FRR sur Alpine Linux.
-* **Pare-feu & VPN** : OPNSense (IPsec IKEv2 + Filtrage Périmétrique).
-
-### Site B : MARSEILLE (Agence)
-* **Filtrage L2 (Proximité)** : Alpine Linux (Open vSwitch + nftables).
-* **Pare-feu, Routeur & VPN** : pfSense (IPsec IKEv2 + Routage LAN).
-
 ## 2. Matrices de Flux (Règles de filtrage)
 
 ### A. Lyon - Switch L3 / Routeur (Alpine nftables)
