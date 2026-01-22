@@ -59,12 +59,9 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 * **Filtrage L2 (Proximité)** : Alpine Linux (Open vSwitch + nftables).
 * **Pare-feu, Routeur & VPN** : pfSense (IPsec IKEv2 + Routage LAN).
 
----
-
 ## 2. Matrices de Flux (Règles de filtrage)
 
 ### A. Lyon - Switch L3 / Routeur (Alpine nftables)
-*C'est ici que l'on gère l'isolation entre les VLANs locaux avant qu'ils ne sortent vers le pare-feu.*
 
 | Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -74,7 +71,6 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 | **VLAN 999** | IN | Any | Any | Tous | Tous | **REJECT** | Sécurité ports non utilisés |
 
 ### B. Lyon - Pare-feu (OPNSense)
-*Gestion du tunnel VPN (sortant) et sécurité des flux arrivant de Marseille.*
 
 | Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -84,7 +80,6 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 | **IPsec** | IN | `10.2.0.0/22` | `10.1.8.0/26` | Tous | Tous | **DENY** | Marseille -> Interdit vers Admin |
 
 ### C. Marseille - Switch L2 (Alpine nftables)
-*Filtrage de proximité pour isoler les machines de l'agence entre elles.*
 
 | Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
@@ -92,7 +87,6 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 | **eth1-5** | IN | `10.2.0.0/22` | `Any` | ARP/IP | Tous | **ALLOW** | Autorise la montée vers pfSense |
 
 ### D. Marseille - Pare-feu (pfSense)
-*Gestion du tunnel VPN et accès Internet de l'agence.*
 
 | Interface | Sens | Source | Destination | Protocole | Port | Action | Utilité |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
