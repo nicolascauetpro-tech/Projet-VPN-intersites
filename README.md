@@ -87,4 +87,4 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 
 
 ## 3. Topologie
-![Topologie du Réseau Multi-sites](./toplogy/topologie.png)
+![Topologie du Réseau Multi-sites](./topology/topologie.png)
