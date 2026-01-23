@@ -84,3 +84,6 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 | **LAN** | IN | `10.2.0.0/22` | `Any` | Tous | Tous | **ALLOW** | Navigation Web Marseille |
 | **IPsec** | IN | `10.1.8.0/26` | `10.2.0.0/22` | Tous | Tous | **ALLOW** | Admin Lyon -> Gestion Marseille |
 | **IPsec** | IN | `10.1.0.0/21` | `10.2.0.0/22` | TCP | 445 | **ALLOW** | Lyon -> SMB Marseille |
+
+
+## 3. Topologie
