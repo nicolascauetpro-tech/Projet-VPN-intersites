@@ -46,7 +46,6 @@ L'enjeu  est de garantir l'intégrité et la confidentialité des échanges de d
 |VLAN 20(DATA)|10.2.0.0/22|10.2.3.254| Postes employés |Marseille|
 |VLAN 10(ADMIN)|10.2.4.0/26|10.2.4.62| Management des équipements réseau depuis Lyon |Marseille|
 |Interco WAN|DHCP GNS3|-| Lien d'interconnexion entre pfsense et Cloud GNS3 |Marseille|
-|Interco alpine/pfSense |10.2.4.64/30| - | Lien d'interconnexion entre L2 et pare-feu| Marseille|
 |VLAN  99 (NATIF)||| Pour les trames non taguées |Marseille|
 |VLAN  999 (POUBELLE)||| Pour les ports non utilisés |Marseille|
 
