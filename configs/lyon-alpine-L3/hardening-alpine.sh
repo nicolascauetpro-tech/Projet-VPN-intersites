@@ -1,74 +1,87 @@
 #!/bin/sh
 # Nom du script : hardening-alpine.sh
-# Rôle : Sécurisation système, SSH et installation Pare-feu
+# Rôle : Config réseau, Admin, SSH, nftables et installation OVS
 # Auteur : Nicolas Cauet
 
 # --- VARIABLES ---
 ADMIN_USER="nicolas_admin"
 ADMIN_GROUP="admins_reseau"
 
-echo "--- Début du Hardening Système ---"
+echo "--- DÉBUT DE LA CONFIGURATION BASE SYSTÈME ---"
 
-# 1. Mise à jour et installation des outils de sécurité
-echo "--- [1/5] Installation des paquets de sécurité ---"
+# 1. VÉRIFICATION RÉSEAU
+echo "--- [1/7] Test de connectivité ---"
+if ping -c 2 8.8.8.8 > /dev/null; then
+    echo "Internet IP : OK"
+else
+    echo "ERREUR : Pas de réseau. Vérifiez /etc/network/interfaces"
+    exit 1
+fi
+
+if nslookup google.com > /dev/null 2>&1; then
+    echo "Internet DNS : OK"
+else
+    echo "ERREUR : DNS non fonctionnel."
+    exit 1
+fi
+
+# 2. INSTALLATION DES PAQUETS
+echo "--- [2/7] Installation des outils  ---"
 apk update
-apk add openssh nftables doas bind-tools
-# Note : on installe nftables mais on ne le configure pas encore
+# On installe OVS mais on ne le configure pas encore
+apk add doas openssh nftables openvswitch
 
-# 2. Activation du Forwarding (Essentiel pour ton futur VPN)
-echo "--- [2/5] Hardening Kernel (sysctl) ---"
-# Autorise le passage des paquets pour le routage VPN
-echo "net.ipv4.ip_forward = 1" > /etc/sysctl.d/vpn-forwarding.conf
-# Désactive les redirections ICMP (sécurité contre l'empoisonnement de route)
-echo "net.ipv4.conf.all.accept_redirects = 0" >> /etc/sysctl.d/vpn-forwarding.conf
-sysctl -p /etc/sysctl.d/vpn-forwarding.conf
+# 3. GESTION DES ACCÈS
+echo "--- [3/7] Création de l'utilisateur et du groupe ---"
+grep -q "^$ADMIN_GROUP:" /etc/group || addgroup -S $ADMIN_GROUP
 
-# 3. Sécurisation SSH
-echo "--- [3/5] Configuration SSH durcie ---"
-# Sauvegarde de la config d'origine
+if ! grep -q "^$ADMIN_USER:" /etc/passwd; then
+    adduser -D $ADMIN_USER
+    echo "Utilisateur $ADMIN_USER créé."
+fi
+addgroup $ADMIN_USER $ADMIN_GROUP 2>/dev/null
+
+# 4. CONFIGURATION DOAS (PRIVILÈGES)
+echo "--- [4/7] Configuration de DOAS ---"
+mkdir -p /etc/doas.d
+echo "permit persist :$ADMIN_GROUP" > /etc/doas.d/doas.conf
+chown root:root /etc/doas.d/doas.conf
+chmod 600 /etc/doas.d/doas.conf
+
+# 5. SÉCURISATION SSH
+echo "--- [5/7] Configuration OpenSSH sécurisée ---"
 [ ! -f /etc/ssh/sshd_config.orig ] && cp /etc/ssh/sshd_config /etc/ssh/sshd_config.orig
 
-# On nettoie le fichier et on applique les règles strictes
 cat <<EOF > /etc/ssh/sshd_config
-# Port de base (tu pourras le changer plus tard)
 Port 22
 Protocol 2
 HostKey /etc/ssh/ssh_host_ed25519_key
 
-# --- SÉCURITÉ ---
-# Interdiction de se connecter en ROOT
+# Sécurité : Pas de root, on privilégie l'utilisateur admin
 PermitRootLogin no
-# On force l'utilisation des clés SSH (plus sûr que les mots de passe)
 PubkeyAuthentication yes
-PasswordAuthentication yes 
-# Note : on laisse PasswordAuthentication à 'yes' tant que tu n'as pas injecté ta clé !
-# Une fois ta clé testée, il faudra passer à 'no'.
+PasswordAuthentication yes
 
-# Limitation du temps de connexion sans authentification
+# Paramètres de protection
 LoginGraceTime 30s
-# Nombre d'essais max
 MaxAuthTries 3
-
-# Log complet des connexions
-SyslogFacility AUTH
-LogLevel INFO
-
-Subsystem sftp /usr/lib/ssh/sftp-server
 EOF
 
-# Activation et démarrage
 rc-update add sshd default
-rc-service sshd restart
+rc-service sshd restart 2>/dev/null
 
-# 4. Nettoyage des services inutiles
-echo "--- [4/5] Nettoyage des services ---"
-# On s'assure que des services non sécurisés ne tournent pas
-rc-update del telnetd default 2>/dev/null
-
-# 5. Préparation nftables (Sans règles pour le moment)
-echo "--- [5/5] Activation nftables (vide) ---"
+# 6. PRÉPARATION FIREWALL & OVS (SERVICES)
+echo "--- [6/7] Activation des services au démarrage ---"
 rc-update add nftables default
-echo "Nftables est installé et prêt, mais aucune règle n'est appliquée."
+rc-update add ovsdb-server default
+rc-update add ovs-vswitchd default
 
-echo "--- Hardening terminé ---"
-echo "IMPORTANT : Teste la connexion SSH de $ADMIN_USER avant de te déconnecter !"
+# 7. RAPPORT FINAL
+echo "--- [7/7] Terminé ---"
+echo "Outils installés : doas, ssh, nftables, openvswitch"
+echo "Utilisateur prêt : $ADMIN_USER"
+echo "------------------------------------------------------"
+echo "ACTION REQUISE : passwd $ADMIN_USER"
+echo "ACTION REQUISE : Copier la clé SSH ssh-copy-id -i ~/.ssh/id_ed25519.pub nicolas_admin@ADRESSE_IP_ALPINE"
+echo "ACTION REQUISE : Modifier option PasswordAuthentication en no dans le fichier sshd_config"
+echo "------------------------------------------------------"
